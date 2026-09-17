@@ -1,9 +1,10 @@
 import React from 'react';
 import { Layers } from 'lucide-react';
 
-export default function CategoryDistributionChart({ categoryCounts = {} }) {
-  const entries = Object.entries(categoryCounts);
-  const total = entries.reduce((sum, [, count]) => sum + count, 0);
+export default function CategoryDistributionChart({ categoryCounts }) {
+  const safeCounts = categoryCounts && typeof categoryCounts === 'object' ? categoryCounts : {};
+  const entries = Object.entries(safeCounts);
+  const total = entries.reduce((sum, [, count]) => sum + (typeof count === 'number' ? count : 0), 0);
 
   // Colors for different categories
   const categoryColors = {

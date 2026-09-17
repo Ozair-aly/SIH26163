@@ -2,19 +2,23 @@ import React from 'react';
 import { ShieldCheck, AlertTriangle, Info } from 'lucide-react';
 
 export default function ScoreCard({ score, grade, gradeLabel, totalDeduction, openFindings }) {
+  const numScore = typeof score === 'number' ? score : 78;
+  const safeGrade = grade || 'B';
+  const safeLabel = gradeLabel || 'Good';
+
   // Determine color theme based on score
   let scoreColor = 'text-emerald-600 border-emerald-200 bg-emerald-50';
   let badgeColor = 'bg-emerald-100 text-emerald-800';
-  if (score < 40) {
+  if (numScore < 40) {
     scoreColor = 'text-rose-600 border-rose-200 bg-rose-50';
     badgeColor = 'bg-rose-100 text-rose-800';
-  } else if (score < 60) {
+  } else if (numScore < 60) {
     scoreColor = 'text-orange-600 border-orange-200 bg-orange-50';
     badgeColor = 'bg-orange-100 text-orange-800';
-  } else if (score < 75) {
+  } else if (numScore < 75) {
     scoreColor = 'text-amber-600 border-amber-200 bg-amber-50';
     badgeColor = 'bg-amber-100 text-amber-800';
-  } else if (score < 90) {
+  } else if (numScore < 90) {
     scoreColor = 'text-blue-600 border-blue-200 bg-blue-50';
     badgeColor = 'bg-blue-100 text-blue-800';
   }
@@ -29,7 +33,7 @@ export default function ScoreCard({ score, grade, gradeLabel, totalDeduction, op
           <h2 className="text-xl font-bold text-slate-900 mt-1">Security Score</h2>
         </div>
         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeColor}`}>
-          Grade {grade} — {gradeLabel}
+          Grade {safeGrade} — {safeLabel}
         </span>
       </div>
 
