@@ -30,6 +30,13 @@ from reportlab.platypus import (
     PageBreak, HRFlowable
 )
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from xml.sax.saxutils import escape as xml_escape
+
+def safe_html(text: str) -> str:
+    """Safely escape text for ReportLab's XML-based Paragraph parser."""
+    if not text:
+        return ""
+    return xml_escape(str(text)).replace("\n", "<br/>")
 
 # ─── Color Palette ────────────────────────────────────────────────────────────
 COLOR_PRIMARY = HexColor("#1e40af")     # Professional blue
@@ -334,22 +341,22 @@ def generate_pdf_report(findings, last_assessment=None) -> str:
         story.append(header_table)
 
         story.append(Paragraph("Description", styles["Label"]))
-        story.append(Paragraph(f.description, styles["BodyText2"]))
+        story.append(Paragraph(safe_html(f.description), styles["BodyText2"]))
 
         story.append(Paragraph("Affected Component", styles["Label"]))
-        story.append(Paragraph(f.affected_component, styles["BodyText2"]))
+        story.append(Paragraph(safe_html(f.affected_component), styles["BodyText2"]))
 
         story.append(Paragraph("Evidence", styles["Label"]))
-        story.append(Paragraph(f.evidence.replace("\n", "<br/>"), styles["Evidence"]))
+        story.append(Paragraph(safe_html(f.evidence), styles["Evidence"]))
 
         story.append(Paragraph("Impact", styles["Label"]))
-        story.append(Paragraph(f.impact.replace("\n", "<br/>"), styles["BodyText2"]))
+        story.append(Paragraph(safe_html(f.impact), styles["BodyText2"]))
 
         story.append(Paragraph("Recommendation", styles["Label"]))
-        story.append(Paragraph(f.recommendation.replace("\n", "<br/>"), styles["BodyText2"]))
+        story.append(Paragraph(safe_html(f.recommendation), styles["BodyText2"]))
 
         if f.cwe_id:
-            story.append(Paragraph(f"CWE Reference: {f.cwe_id}", styles["Disclaimer"]))
+            story.append(Paragraph(f"CWE Reference: {safe_html(f.cwe_id)}", styles["Disclaimer"]))
 
         story.append(Spacer(1, 0.4*cm))
 

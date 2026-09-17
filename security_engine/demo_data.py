@@ -108,7 +108,7 @@ def get_demo_findings() -> list[Finding]:
                 "Force password change on first login."
             ),
             source=FindingSource.DEMO,
-            status=FindingStatus.OPEN,
+            status=FindingStatus.FIXED,
             cwe_id="CWE-521",
             cvss_score=9.8,
         ),
@@ -143,7 +143,7 @@ def get_demo_findings() -> list[Finding]:
                 "Or use Flask-Talisman which handles all headers automatically in one line."
             ),
             source=FindingSource.DEMO,
-            status=FindingStatus.IN_PROGRESS,
+            status=FindingStatus.FIXED,
             cwe_id="CWE-693",
         ),
         Finding(
@@ -204,7 +204,7 @@ def get_demo_findings() -> list[Finding]:
                 "For development, use mkcert for local HTTPS."
             ),
             source=FindingSource.DEMO,
-            status=FindingStatus.OPEN,
+            status=FindingStatus.ACCEPTED_RISK,
             cwe_id="CWE-319",
             cvss_score=8.8,
         ),
@@ -238,7 +238,7 @@ def get_demo_findings() -> list[Finding]:
                 "Audit codebase for other debug/diagnostic endpoints."
             ),
             source=FindingSource.DEMO,
-            status=FindingStatus.OPEN,
+            status=FindingStatus.FIXED,
             cwe_id="CWE-526",
             cvss_score=9.8,
         ),

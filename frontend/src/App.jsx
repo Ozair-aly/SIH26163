@@ -6,7 +6,7 @@ import MethodologyPage from './pages/MethodologyPage';
 import AboutPage from './pages/AboutPage';
 import FindingDetailModal from './components/FindingDetailModal';
 import RunScanModal from './components/RunScanModal';
-import { getDashboard, getFindings } from './api/client';
+import { getDashboard, getFindings, resetAssessment } from './api/client';
 import { Shield, AlertTriangle } from 'lucide-react';
 
 export default function App() {
@@ -53,6 +53,18 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
+  const handleResetBaseline = async () => {
+    if (window.confirm('Reset all findings back to the clean baseline demo dataset (78/100 Grade B)?')) {
+      try {
+        await resetAssessment();
+        await loadData();
+      } catch (err) {
+        console.error('Failed to reset', err);
+        alert('Failed to reset assessment dataset');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar
@@ -90,6 +102,7 @@ export default function App() {
                 onViewAllFindings={() => setActiveTab('findings')}
                 onOpenScanModal={() => setIsScanModalOpen(true)}
                 refreshDashboard={loadData}
+                onResetBaseline={handleResetBaseline}
               />
             )}
 

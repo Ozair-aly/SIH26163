@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (typeof window !== 'undefined' && window.location.port === '5173' ? 'http://localhost:8000' : '');
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -39,6 +40,11 @@ export const triggerAssessment = async (targetUrl = 'http://localhost:5001', inc
     target_url: targetUrl,
     include_demo: includeDemo,
   });
+  return response.data;
+};
+
+export const resetAssessment = async () => {
+  const response = await api.post('/api/assessment/reset');
   return response.data;
 };
 

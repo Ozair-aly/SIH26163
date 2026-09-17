@@ -47,7 +47,7 @@ def get_dashboard(db: Session = Depends(get_db)):
     Returns aggregated data for the main dashboard.
 
     Calculates:
-    - Security score (based on open findings)
+    - Security score (based on active unique open findings)
     - Severity distribution
     - Category distribution
     - Recent findings (last 5)
@@ -55,7 +55,19 @@ def get_dashboard(db: Session = Depends(get_db)):
     """
     from security_engine.finding import calculate_security_score, Finding, Severity, FindingStatus, FindingSource
 
-    findings_db = db.query(FindingModel).all()
+    all_findings_db = db.query(FindingModel).all()
+
+    # Deduplicate findings by finding ID to prevent accumulation across repeated runs
+    unique_dict = {}
+    for f in all_findings_db:
+        if f.id not in unique_dict:
+            unique_dict[f.id] = f
+        else:
+            # Preserve user modifications (e.g. Fixed or Accepted Risk)
+            if f.status in ["Fixed", "Accepted Risk", "In Progress"]:
+                unique_dict[f.id] = f
+
+    findings_db = list(unique_dict.values())
 
     # Convert DB rows back to Finding objects for scoring
     findings = []
@@ -121,10 +133,8 @@ def run_assessment(
     Trigger a new security assessment.
 
     Runs all check modules against the target URL,
-    stores findings in the database, and updates the security score.
-
-    The assessment runs synchronously for the prototype
-    (background tasks available for future async upgrade).
+    upserts findings in the database to prevent duplicate accumulation,
+    and updates the security score.
     """
     import sys, os
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -149,28 +159,43 @@ def run_assessment(
     )
     db.add(assessment)
 
-    # Save findings
+    # Upsert findings by rule ID
     for f_data in result["findings"]:
-        finding = FindingModel(
-            uid=f_data["uid"],
-            id=f_data["id"],
-            assessment_id=result["assessment_id"],
-            title=f_data["title"],
-            category=f_data["category"],
-            severity=f_data["severity"],
-            description=f_data["description"],
-            affected_component=f_data["affected_component"],
-            evidence=f_data["evidence"],
-            impact=f_data["impact"],
-            recommendation=f_data["recommendation"],
-            source=f_data["source"],
-            status=f_data["status"],
-            cwe_id=f_data.get("cwe_id"),
-            cvss_score=f_data.get("cvss_score"),
-            created_at=f_data.get("created_at"),
-            is_demo=(f_data["source"] == "Demo"),
-        )
-        db.add(finding)
+        existing = db.query(FindingModel).filter(FindingModel.id == f_data["id"]).first()
+        if existing:
+            existing.title = f_data["title"]
+            existing.category = f_data["category"]
+            existing.severity = f_data["severity"]
+            existing.description = f_data["description"]
+            existing.affected_component = f_data["affected_component"]
+            existing.evidence = f_data["evidence"]
+            existing.impact = f_data["impact"]
+            existing.recommendation = f_data["recommendation"]
+            existing.source = f_data["source"]
+            existing.assessment_id = result["assessment_id"]
+            if existing.status not in ["Fixed", "Accepted Risk"]:
+                existing.status = f_data["status"]
+        else:
+            finding = FindingModel(
+                uid=f_data["uid"],
+                id=f_data["id"],
+                assessment_id=result["assessment_id"],
+                title=f_data["title"],
+                category=f_data["category"],
+                severity=f_data["severity"],
+                description=f_data["description"],
+                affected_component=f_data["affected_component"],
+                evidence=f_data["evidence"],
+                impact=f_data["impact"],
+                recommendation=f_data["recommendation"],
+                source=f_data["source"],
+                status=f_data["status"],
+                cwe_id=f_data.get("cwe_id"),
+                cvss_score=f_data.get("cvss_score"),
+                created_at=f_data.get("created_at"),
+                is_demo=(f_data["source"] == "Demo"),
+            )
+            db.add(finding)
 
     db.commit()
 
@@ -181,6 +206,22 @@ def run_assessment(
         "score": result["score"]["score"],
         "grade": result["score"]["grade"],
     }
+
+
+@router.post("/api/assessment/reset")
+def reset_assessment(db: Session = Depends(get_db)):
+    """
+    Resets the database back to the clean baseline demo dataset.
+    Useful for demonstration resets.
+    """
+    db.query(FindingModel).delete()
+    db.query(AssessmentModel).delete()
+    db.commit()
+
+    from backend.seed import seed_database
+    seed_database()
+
+    return {"message": "Database successfully reset to baseline demo dataset"}
 
 
 @router.get("/api/assessment/history")

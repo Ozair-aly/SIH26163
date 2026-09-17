@@ -50,8 +50,14 @@ def list_findings(
     if source:
         query = query.filter(FindingModel.source == source)
 
-    findings = query.order_by(FindingModel.id).all()
-    return findings
+    raw_findings = query.order_by(FindingModel.id).all()
+    unique_dict = {}
+    for f in raw_findings:
+        if f.id not in unique_dict:
+            unique_dict[f.id] = f
+        elif f.status in ["Fixed", "Accepted Risk", "In Progress"]:
+            unique_dict[f.id] = f
+    return list(unique_dict.values())
 
 
 @router.get("/{uid}", response_model=FindingResponse)

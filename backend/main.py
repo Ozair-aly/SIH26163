@@ -23,7 +23,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.database import init_db
 from backend.routes.findings import router as findings_router
@@ -89,9 +90,18 @@ app.include_router(assessment_router)
 app.include_router(report_router)
 
 
-# ─── Root Endpoint ────────────────────────────────────────────────────────────
-@app.get("/")
-def root():
+# ─── Static Frontend Serving (Self-Contained Full-Stack Deployment) ────────────
+# When deployed to Render (e.g. https://sih26163.onrender.com),
+# the dashboard UI is served directly from root /, while /api remains REST.
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+FRONTEND_ASSETS = os.path.join(FRONTEND_DIST, "assets")
+
+if os.path.exists(FRONTEND_ASSETS):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS), name="static-assets")
+
+@app.get("/api")
+def api_root():
+    """API metadata endpoint."""
     return {
         "name": "SIH26163 Security Assessment API",
         "version": "1.0.0",
@@ -100,6 +110,31 @@ def root():
         "dashboard": "/api/dashboard",
         "findings": "/api/findings",
         "note": "Prototype — for Smart India Hackathon 2026 demonstration only.",
+    }
+
+@app.get("/{full_path:path}")
+async def serve_frontend_spa(full_path: str):
+    """
+    Serves the React single-page application.
+    If the requested path matches an actual static file in dist, return it.
+    Otherwise, return index.html to allow client-side React routing.
+    """
+    if os.path.exists(FRONTEND_DIST):
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+
+    # Fallback to API info if frontend is not built
+    return {
+        "name": "SIH26163 Security Assessment API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/api/health",
+        "dashboard": "/api/dashboard",
+        "findings": "/api/findings",
     }
 
 

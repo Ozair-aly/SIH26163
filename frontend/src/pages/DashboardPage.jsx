@@ -31,18 +31,27 @@ export default function DashboardPage({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={refreshDashboard}
             title="Refresh dashboard metrics"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition active:scale-95"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             Refresh
           </button>
+          {onResetBaseline && (
+            <button
+              onClick={onResetBaseline}
+              title="Reset findings to baseline demo dataset"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold transition"
+            >
+              Reset Baseline
+            </button>
+          )}
           <button
             onClick={onOpenScanModal}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition active:scale-95"
           >
             Run New Scan
           </button>
