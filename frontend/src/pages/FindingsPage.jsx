@@ -12,7 +12,7 @@ export default function FindingsPage({ findings, onSelectFinding, onRefresh }) {
   const [selectedSource, setSelectedSource] = useState('All');
 
   const filteredFindings = useMemo(() => {
-    return findings.filter((f) => {
+    return (findings || []).filter((f) => {
       // Search
       const matchesSearch =
         f.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -13,6 +13,7 @@ export default function DashboardPage({
   onViewAllFindings,
   onOpenScanModal,
   refreshDashboard,
+  onResetBaseline,
 }) {
   const recentFindings = dashboardData?.recent_findings || [];
 
