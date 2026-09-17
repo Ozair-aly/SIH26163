@@ -15,10 +15,10 @@ export default function FindingsPage({ findings, onSelectFinding, onRefresh }) {
     return (findings || []).filter((f) => {
       // Search
       const matchesSearch =
-        f.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.affected_component.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.description.toLowerCase().includes(searchTerm.toLowerCase());
+        (f.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (f.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (f.affected_component || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (f.description || '').toLowerCase().includes(searchTerm.toLowerCase());
 
       // Severity
       const matchesSeverity = selectedSeverity === 'All' || f.severity === selectedSeverity;
@@ -45,33 +45,33 @@ export default function FindingsPage({ findings, onSelectFinding, onRefresh }) {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
+    <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
       {/* Header & Controls */}
-      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Security Findings Repository</h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Showing {filteredFindings.length} of {findings.length} findings
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">Security Findings Repository</h2>
+            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
+              Showing {filteredFindings.length} of {(findings || []).length} findings
             </p>
           </div>
           <button
             onClick={onRefresh}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition active:scale-95"
           >
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             Refresh
           </button>
         </div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 border-t border-slate-100">
+        {/* Responsive Filters Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 pt-3 border-t border-slate-100">
           {/* Search */}
           <div className="relative lg:col-span-2">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search by ID, keyword, endpoint..."
+              placeholder="Search ID, keyword, endpoint..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -126,9 +126,51 @@ export default function FindingsPage({ findings, onSelectFinding, onRefresh }) {
         </div>
       </div>
 
-      {/* Findings Table */}
+      {/* Findings Container */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile View: Finding Cards (< md) */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filteredFindings.length === 0 ? (
+            <div className="py-12 text-center text-xs text-slate-400">
+              No findings match the selected filters.
+            </div>
+          ) : (
+            filteredFindings.map((f) => (
+              <div
+                key={f.uid}
+                onClick={() => onSelectFinding(f)}
+                className="p-3.5 space-y-2 hover:bg-blue-50/40 transition cursor-pointer active:bg-slate-100"
+              >
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-slate-700">{f.id}</span>
+                    <SeverityBadge severity={f.severity} />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <SourceBadge source={f.source} />
+                    <StatusBadge status={f.status} />
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 leading-snug">{f.title}</h4>
+                  <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{f.description}</p>
+                  <p className="text-[11px] text-slate-500 font-mono mt-1 truncate">{f.affected_component}</p>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500">
+                  <span>{f.category}</span>
+                  <span className="text-blue-600 font-semibold inline-flex items-center gap-1">
+                    Details <ExternalLink className="w-3 h-3" />
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop / Tablet View: Table (>= md) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
@@ -165,7 +207,7 @@ export default function FindingsPage({ findings, onSelectFinding, onRefresh }) {
                         {f.title}
                       </p>
                       <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                        {f.description.slice(0, 75)}...
+                        {(f.description || '').slice(0, 75)}...
                       </p>
                     </td>
                     <td className="py-3 px-4 text-slate-600 font-medium">{f.category}</td>

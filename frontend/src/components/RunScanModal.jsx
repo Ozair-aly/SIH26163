@@ -26,7 +26,7 @@ export default function RunScanModal({ isOpen, onClose, onScanComplete }) {
     setErrorMsg('');
 
     try {
-      // Simulate sequential step updates for nice judge UX
+      // Step updates for visual feedback
       for (let i = 0; i < modules.length; i++) {
         setCurrentStep(modules[i]);
         await new Promise((res) => setTimeout(res, 250));
@@ -50,23 +50,24 @@ export default function RunScanModal({ isOpen, onClose, onScanComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/75">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-blue-600" />
-            <h3 className="text-base font-bold text-slate-900">Run Security Assessment</h3>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900">Run Security Assessment</h3>
           </div>
           <button
             onClick={onClose}
             disabled={isScanning}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-5 text-sm">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 text-xs sm:text-sm">
           {/* Target URL input */}
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -98,7 +99,7 @@ export default function RunScanModal({ isOpen, onClose, onScanComplete }) {
               disabled={isScanning}
               className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            <label htmlFor="include-demo" className="text-xs text-slate-700 select-none">
+            <label htmlFor="include-demo" className="text-xs text-slate-700 select-none cursor-pointer">
               <strong className="text-slate-900 block font-semibold">
                 Include Demo Findings Alongside Scan
               </strong>
@@ -108,10 +109,10 @@ export default function RunScanModal({ isOpen, onClose, onScanComplete }) {
 
           {/* Scan Progress State */}
           {isScanning && (
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-              <div className="flex items-center gap-2 text-blue-600 font-semibold text-xs">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Executing Module: {currentStep}</span>
+            <div className="p-3.5 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center gap-2 text-blue-600 font-semibold text-xs truncate">
+                <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                <span className="truncate">Executing: {currentStep}</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                 <div className="bg-blue-600 h-1.5 rounded-full animate-pulse w-3/4" />
@@ -126,28 +127,28 @@ export default function RunScanModal({ isOpen, onClose, onScanComplete }) {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2">
           <button
             onClick={onClose}
             disabled={isScanning}
-            className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 transition"
+            className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 transition active:scale-95"
           >
             Cancel
           </button>
           <button
             onClick={handleStartScan}
             disabled={isScanning}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition disabled:opacity-50 active:scale-95"
           >
             {isScanning ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Scanning Target...
+                Scanning...
               </>
             ) : (
               <>
                 <Play className="w-3.5 h-3.5" />
-                Start Security Scan
+                Start Scan
               </>
             )}
           </button>

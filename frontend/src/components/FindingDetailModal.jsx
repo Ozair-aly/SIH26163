@@ -29,45 +29,48 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 md:p-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-2xl max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/50">
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/75">
+          <div className="pr-2">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 flex-wrap">
+              <span className="font-mono text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
                 {finding.id}
               </span>
-              <SeverityBadge severity={finding.severity} size="md" />
+              <SeverityBadge severity={finding.severity} size="sm" />
               <SourceBadge source={finding.source} />
-              <span className="text-xs font-medium text-slate-500">• {finding.category}</span>
+              <span className="text-[11px] sm:text-xs font-medium text-slate-500">• {finding.category}</span>
             </div>
-            <h2 className="text-lg font-bold text-slate-900 mt-2">{finding.title}</h2>
+            <h2 className="text-sm sm:text-lg font-bold text-slate-900 mt-1.5 sm:mt-2 leading-snug">
+              {finding.title}
+            </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition flex-shrink-0"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="px-6 py-5 overflow-y-auto space-y-6 text-sm">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 overflow-y-auto space-y-4 sm:space-y-6 text-xs sm:text-sm">
           {/* Status Bar */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-semibold text-slate-600">Audit Status:</span>
               <StatusBadge status={status} />
               {successMsg && (
-                <span className="text-xs font-medium text-emerald-600 ml-2 animate-fade-in">
+                <span className="text-xs font-medium text-emerald-600 ml-1">
                   ✓ {successMsg}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
-              <label htmlFor="status-select" className="text-xs text-slate-500 font-medium">
-                Change:
+              <label htmlFor="status-select" className="text-xs text-slate-500 font-medium whitespace-nowrap">
+                Change Status:
               </label>
               <select
                 id="status-select"
@@ -86,7 +89,7 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
 
           {/* Description */}
           <div>
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               Description
             </h4>
             <p className="text-slate-700 leading-relaxed bg-slate-50/50 p-3 rounded-lg border border-slate-100">
@@ -96,10 +99,10 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
 
           {/* Affected Component */}
           <div>
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               Affected Component / Target Endpoint
             </h4>
-            <code className="text-xs font-mono font-semibold bg-slate-100 text-blue-800 px-2.5 py-1.5 rounded block border border-slate-200">
+            <code className="text-xs font-mono font-semibold bg-slate-100 text-blue-800 px-2.5 py-1.5 rounded block border border-slate-200 break-all">
               {finding.affected_component}
             </code>
           </div>
@@ -107,20 +110,20 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
           {/* Controlled Evidence */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                 <Terminal className="w-3.5 h-3.5 text-slate-500" />
                 Controlled Evidence & Verification
               </h4>
-              <span className="text-[11px] text-slate-400">Safe Observational Inspection</span>
+              <span className="text-[10px] sm:text-[11px] text-slate-400 hidden xs:inline">Safe Observational Inspection</span>
             </div>
-            <pre className="p-3.5 bg-slate-900 text-slate-100 font-mono text-xs rounded-xl overflow-x-auto whitespace-pre-wrap leading-relaxed border border-slate-800">
+            <pre className="p-3 sm:p-3.5 bg-slate-900 text-slate-100 font-mono text-[11px] sm:text-xs rounded-xl overflow-x-auto whitespace-pre-wrap leading-relaxed border border-slate-800 break-all">
               {finding.evidence}
             </pre>
           </div>
 
           {/* Impact */}
           <div>
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
               Potential Business & Security Impact
             </h4>
@@ -131,11 +134,11 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
 
           {/* Recommendation */}
           <div>
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <h4 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
               Developer Remediation Recommendation
             </h4>
-            <div className="p-3.5 bg-emerald-50/40 rounded-xl border border-emerald-100 text-slate-800 whitespace-pre-wrap leading-relaxed text-xs font-mono">
+            <div className="p-3 sm:p-3.5 bg-emerald-50/40 rounded-xl border border-emerald-100 text-slate-800 whitespace-pre-wrap leading-relaxed text-[11px] sm:text-xs font-mono break-words">
               {finding.recommendation}
             </div>
           </div>
@@ -157,13 +160,13 @@ export default function FindingDetailModal({ finding, onClose, onStatusUpdated }
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500">
-            Prototype finding record for SIH26163
+        <div className="px-4 sm:px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+          <span className="text-[10px] sm:text-[11px] text-slate-500 truncate mr-2">
+            SIH26163 Assessment Record
           </span>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg text-xs transition"
+            className="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg text-xs transition active:scale-95"
           >
             Close
           </button>
