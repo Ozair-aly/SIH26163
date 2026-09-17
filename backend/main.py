@@ -46,12 +46,11 @@ app = FastAPI(
 
 
 # ─── CORS Configuration ───────────────────────────────────────────────────────
-# Allows the React frontend (running on port 5173) to call this API.
-# In production, replace "*" with your specific frontend domain.
+# Allows local dev and deployed cloud frontends (Vercel, Render, etc.)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,  # Wildcard origins require allow_credentials=False in standard CORS specs
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -60,7 +59,7 @@ app.add_middleware(
 # ─── Startup Event ────────────────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database and seed demo data on first run."""
+    """Initialize database, seed demo data, and optionally start simulated target app."""
     init_db()
     # Auto-seed if database is empty
     try:
@@ -68,6 +67,20 @@ async def startup_event():
         seed_database()
     except Exception as e:
         print(f"Seed warning: {e}")
+
+    # Launch local simulated target app on port 5001 in background thread
+    # This enables live active scanning even on cloud platforms (Render, Railway, etc.)
+    import threading
+    def _run_target():
+        try:
+            from target_app.app import app as target_flask_app
+            target_flask_app.run(host="127.0.0.1", port=5001, debug=False, use_reloader=False)
+        except Exception as err:
+            print(f"Target app background thread: {err}")
+
+    t = threading.Thread(target=_run_target, daemon=True)
+    t.start()
+    print("Simulated World Monitor target app initialized on port 5001 (daemon thread).")
 
 
 # ─── Routers ─────────────────────────────────────────────────────────────────
